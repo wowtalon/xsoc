@@ -1,0 +1,14 @@
+{% extends xsoc_base_template %}
+{% block title %}Index{% endblock %}
+{% block content %}
+    <div class="container">
+        <h1>Welcome to the Web Plugin Home Page!</h1>
+        <p>Here you can manage your web plugins.</p>
+        <!-- List all plugins -->
+        <ul>
+            {% for plugin in plugin_list %}
+                <li>{{ plugin.name }} - {{ plugin.description }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}
