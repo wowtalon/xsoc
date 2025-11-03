@@ -1,5 +1,6 @@
 from xplugin.plugin import Plugin
 from xplugin.logger import xlogger
+import jinja2
 
 xlogger.info("Workflow Plugin initialized.")
 
@@ -53,20 +54,21 @@ class WorkflowPlugin(Plugin):
             parameters = step.get('parameters', {})
             xlogger.debug(f"Original parameters: {parameters}")
             for key, value in parameters.items():
-                if isinstance(value, str) and value.startswith("{") and value.endswith("}"):
-                    ref_keys = value[1:-1].split('.')
+                parameters[key] = jinja2.Template(str(value)).render(context)
+                # if isinstance(value, str) and value.startswith("{") and value.endswith("}"):
+                #     ref_keys = value[1:-1].split('.')
                     
-                    if ref_keys[0] == 'env':
-                        ref_context = context['env']
-                        ref_keys = ref_keys[1:]
-                    else:
-                        ref_context = context['steps']
-                    for ref_key in ref_keys:
-                        if ref_key in ref_context:
-                            ref_context = ref_context[ref_key]
-                        else:
-                            raise ValueError(f"Reference {value} not found in context")
-                    parameters[key] = ref_context
+                #     if ref_keys[0] == 'env':
+                #         ref_context = context['env']
+                #         ref_keys = ref_keys[1:]
+                #     else:
+                #         ref_context = context['steps']
+                #     for ref_key in ref_keys:
+                #         if ref_key in ref_context:
+                #             ref_context = ref_context[ref_key]
+                #         else:
+                #             raise ValueError(f"Reference {value} not found in context")
+                #     parameters[key] = ref_context
             xlogger.debug(f"Resolved parameters: {parameters}")
             match step.get('action'):
                 case 'tool':

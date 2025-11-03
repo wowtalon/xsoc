@@ -13,9 +13,9 @@ steps:
     action: plugin
     target: HelloWorldPlugin.say_hello_to
     parameters:
-      name: "{env.var1}"
+      name: "{{ env.var1 }}"
   - name: step3
     action: plugin
     target: HelloWorldPlugin.say_hello_to
     parameters:
-      name: "{step1}"
+      name: "{{ steps.step1 }}"

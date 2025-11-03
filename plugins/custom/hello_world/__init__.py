@@ -14,6 +14,6 @@ class HelloWorldPlugin(Plugin):
         return "Hello, World! This is the HelloWorldPlugin speaking."
     
     def say_hello_to(self, name: str) -> str:
-        greeting = f"Hello, {name}! This is the HelloWorldPlugin speaking."
+        greeting = f"Hello, ------{name}------! This is the HelloWorldPlugin speaking."
         log_func(greeting, level="info")
         return greeting
