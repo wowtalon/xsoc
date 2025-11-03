@@ -81,19 +81,22 @@ def main():
         manager = PluginManager()
         
         # Initialize built-in plugins
-        built_in_plugins = manager.init_plugins_from_path('./plugins/built-in')
-        xsoc["core"]["plugins"]["built-in"] = built_in_plugins
+        built_in_plugins = manager.init_plugins_from_path('./plugins/builtin')
+        xsoc["core"]["plugins"]["built-in"] = {plugin.name: plugin for plugin in built_in_plugins}
         # Initialize custom plugins
         custom_plugins = manager.init_plugins_from_path('./plugins/custom')
-        xsoc["core"]["plugins"]["custom"] = custom_plugins
+        xsoc["core"]["plugins"]["custom"] = {plugin.name: plugin for plugin in custom_plugins}
         
         for plugin in built_in_plugins:
             plugin.register_variable("xsoc_core", xsoc["core"])
             plugin.register_variable("shutdown_event", shutdown_event)
             
+            logger.debug(plugin.name)
             if plugin.separate_process:
                 if plugin.name == "WebPlugin":
                     thread = Thread(target=plugin_wrapper, args=(plugin,), kwargs={"port": xsoc_port}, daemon=True)
+                elif plugin.name == "WorkflowPlugin":
+                    thread = Thread(target=plugin_wrapper, args=(plugin,), kwargs={"workflow_config_path": "./example/workflows/test.yaml"}, daemon=True)
                 else:
                     thread = Thread(target=plugin_wrapper, args=(plugin,), daemon=True)
                 thread.name = f"Plugin-{plugin.name}"
@@ -102,7 +105,7 @@ def main():
                 logger.info(f"Started thread for plugin: {plugin.name}")
             else:
                 plugin.run_plugin()
-            logger.debug(active_threads)
+            # logger.debug(active_threads)
         
         
         for plugin in custom_plugins:

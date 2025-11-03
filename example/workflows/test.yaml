@@ -1,0 +1,14 @@
+version: 1.0
+name: Test Workflow
+description: A workflow to test the system functionality
+steps:
+  - name: Step 1
+    action: tool # plugin or tool
+    target: print_message # plugin or tool name
+    parameters:
+      message: "This is step 1"
+  - name: Step2 plugin
+    action: plugin
+    target: HelloWorldPlugin.say_hello_to
+    parameters:
+      name: "XSOC User"
