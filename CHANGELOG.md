@@ -8,23 +8,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Plugin marketplace integration
-- Advanced workflow features
-- REST API for external integrations
-- Container deployment support
-- Real-time event streaming
+- Jinja2 template parsing for dynamic parameter resolution in workflows
+- Enhanced workflow engine with context variable support
+- Colored logging system with level-based color coding
+- Dynamic tool loading and execution framework
+- Workflow tools library with common utility functions
+- Environment variable and step result referencing in workflows
+- Plugin dictionary structure for improved plugin management
 
 ### Changed
-- Improved plugin loading performance
-- Enhanced error handling across the system
-- Updated web interface design
+- Plugin storage structure from lists to dictionaries for better lookup
+- Workflow parameter resolution now uses Jinja2 templating
+- Enhanced workflow step execution with better error handling
+- Improved plugin initialization and registration process
 
-### Deprecated
-- Legacy plugin configuration format
+### Fixed
+- Plugin duplicate registration issue resolved
+- Thread management and cleanup improvements
+- Workflow context variable resolution
 
-### Security
-- Enhanced input validation
-- Improved authentication mechanisms
+### Technical Improvements
+- Added xLogger class with colored console output
+- Enhanced plugin wrapper with better error handling
+- Improved workflow configuration parsing
+- Better separation of built-in and custom plugin handling
 
 ## [0.1.0] - 2025-11-03
 

@@ -14,12 +14,13 @@ XSOC (eXtensible Security Operations Center) is a modern, plugin-based security 
 
 - **🔌 Plugin Architecture**: Extensible plugin system supporting both built-in and custom plugins
 - **🌐 Web Interface**: Modern web-based dashboard with responsive design
-- **⚙️ Workflow Engine**: Automated workflow processing with YAML configuration
+- **⚙️ Workflow Engine**: Automated workflow processing with YAML configuration and Jinja2 templating
 - **🔧 Tool Integration**: Dynamic tool loading and execution framework
 - **📊 Real-time Monitoring**: Live security event monitoring and alerting
 - **🛡️ SOC Operations**: Comprehensive security operations center functionality
 - **⚡ Multi-threading**: Efficient concurrent plugin execution
 - **🔄 Graceful Shutdown**: Proper resource cleanup and thread management
+- **🎨 Colored Logging**: Enhanced logging with color-coded output levels
 
 ## Architecture
 
@@ -74,6 +75,16 @@ xsoc/
    ```bash
    python app.py
    ```
+
+### Dependencies
+
+Current project dependencies:
+```
+python-dotenv>=0.9.9    # Environment variable management
+flask>=3.1.2            # Web framework
+pyyaml>=6.0.3          # YAML configuration parsing
+jinja2>=3.0.0          # Template engine for workflows
+```
 
 ### Environment Variables
 
@@ -133,11 +144,33 @@ Access at: `http://localhost:5000`
 
 #### Workflow Plugin
 
-Enables automated workflow processing:
+Enables automated workflow processing with advanced features:
 - YAML-based workflow definitions
-- Dynamic tool loading
-- Step-by-step execution
-- Error handling and logging
+- Jinja2 template engine for dynamic parameter resolution
+- Context variable support (environment and step results)
+- Dynamic tool loading and execution
+- Step-by-step execution with error handling
+- Built-in utility functions for common operations
+
+Example workflow configuration:
+```yaml
+version: 1.0
+name: Test Workflow
+description: A workflow to test the system functionality
+env:
+  var1: "World"
+steps:
+  - name: step1
+    action: tool
+    target: print_message
+    parameters:
+      message: "Hello from {{ env.var1 }}"
+  - name: step2
+    action: plugin
+    target: MyPlugin.my_function
+    parameters:
+      input: "{{ steps.step1 }}"
+```
 
 ## API Reference
 
@@ -175,6 +208,26 @@ class PluginManager:
         # Get all registered plugins
 ```
 
+### Logging System
+
+XSOC includes an enhanced logging system with colored output for better visibility:
+
+```python
+from xplugin.logger import xlogger
+
+# Available log levels with color coding
+xlogger.debug("Debug message")      # Cyan
+xlogger.info("Info message")        # Green  
+xlogger.warning("Warning message")  # Yellow
+xlogger.error("Error message")      # Red
+xlogger.critical("Critical message") # Magenta
+```
+
+The logger provides:
+- Color-coded output for different log levels
+- Timestamp and logger name information
+- Consistent formatting across the application
+
 ## Configuration
 
 ### Application Configuration
@@ -206,6 +259,44 @@ Plugins can access the core configuration through the `xsoc_core` variable:
 def run_plugin(self):
     version = self.xsoc_core["version"]
     debug_mode = self.xsoc_core["settings"]["debug"]
+```
+
+### Workflow Tools
+
+The workflow plugin includes a comprehensive set of utility functions:
+
+```python
+# Conditional operations
+if_condition_met(condition, then_value, else_value)
+case_condition_met(condition, cases_dict)
+
+# Type checking
+is_true(value)
+is_false(value) 
+is_none(value)
+
+# Type conversion
+convert_to_string(value)
+convert_to_int(value)
+
+# String operations
+concatenate_strings(*args)
+
+# Utility functions
+print_message(message)
+loop_until_condition_met(condition, timeout)
+iterate_over_list(list, function)
+```
+
+These tools can be called directly in workflow YAML files:
+
+```yaml
+steps:
+  - name: convert_step
+    action: tool
+    target: convert_to_int
+    parameters:
+      value: "{{ env.some_number }}"
 ```
 
 ## Development
