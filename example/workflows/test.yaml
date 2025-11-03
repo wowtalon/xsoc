@@ -1,14 +1,21 @@
 version: 1.0
 name: Test Workflow
 description: A workflow to test the system functionality
+env:
+  var1: "World"
 steps:
-  - name: Step 1
+  - name: step1
     action: tool # plugin or tool
     target: print_message # plugin or tool name
     parameters:
       message: "This is step 1"
-  - name: Step2 plugin
+  - name: step2
     action: plugin
     target: HelloWorldPlugin.say_hello_to
     parameters:
-      name: "XSOC User"
+      name: "{env.var1}"
+  - name: step3
+    action: plugin
+    target: HelloWorldPlugin.say_hello_to
+    parameters:
+      name: "{step1}"

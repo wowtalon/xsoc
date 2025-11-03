@@ -94,6 +94,7 @@ def main():
             logger.debug(plugin.name)
             if plugin.separate_process:
                 if plugin.name == "WebPlugin":
+                    # continue
                     thread = Thread(target=plugin_wrapper, args=(plugin,), kwargs={"port": xsoc_port}, daemon=True)
                 elif plugin.name == "WorkflowPlugin":
                     thread = Thread(target=plugin_wrapper, args=(plugin,), kwargs={"workflow_config_path": "./example/workflows/test.yaml"}, daemon=True)

@@ -43,27 +43,49 @@ class WorkflowPlugin(Plugin):
     def run_workflow(self, workflow):
         """Run a workflow."""
         print(f"Running workflow: {workflow}")
+        context = {
+            "env": workflow.get('env', {}),
+            "steps": {}
+        }
         for step in workflow.get('steps', []):
             print(f"Executing step: {step}")
             # Here you would add logic to execute each step
+            parameters = step.get('parameters', {})
+            xlogger.debug(f"Original parameters: {parameters}")
+            for key, value in parameters.items():
+                if isinstance(value, str) and value.startswith("{") and value.endswith("}"):
+                    ref_keys = value[1:-1].split('.')
+                    
+                    if ref_keys[0] == 'env':
+                        ref_context = context['env']
+                        ref_keys = ref_keys[1:]
+                    else:
+                        ref_context = context['steps']
+                    for ref_key in ref_keys:
+                        if ref_key in ref_context:
+                            ref_context = ref_context[ref_key]
+                        else:
+                            raise ValueError(f"Reference {value} not found in context")
+                    parameters[key] = ref_context
+            xlogger.debug(f"Resolved parameters: {parameters}")
             match step.get('action'):
                 case 'tool':
                     tool_name = step.get('target')
                     parameters = step.get('parameters', {})
-                    xlogger.debug(f"Running tool {tool_name} with parameters {parameters}")
+                    # xlogger.debug(f"Running tool {tool_name} with parameters {parameters}")
                     # Placeholder for actual tool execution
                     # Dynamic call 
                     result = globals()['tools'].__dict__[tool_name](**parameters)
                     xlogger.debug(f"Tool {tool_name} result: {result}")
                 case 'wait':
                     duration = step.get('duration', 1)
-                    xlogger.debug(f"Waiting for {duration} seconds")
+                    # xlogger.debug(f"Waiting for {duration} seconds")
                     self.wait_or_shutdown(timeout=duration)
                 case 'plugin':
                     plugin_name, tool_name = step.get('target').split('.')
                     parameters = step.get('parameters', {})
-                    xlogger.debug(f"Invoking plugin {plugin_name} with parameters {parameters}")
-                    xlogger.debug(self.xsoc_core['plugins'])
+                    # xlogger.debug(f"Invoking plugin {plugin_name} with parameters {parameters}")
+                    # xlogger.debug(self.xsoc_core['plugins'])
                     # Placeholder for actual plugin invocation
                     # Dynamic call
                     if plugin_name in self.xsoc_core['plugins']['built-in']:
@@ -74,7 +96,8 @@ class WorkflowPlugin(Plugin):
                         xlogger.error(f"Plugin {plugin_name} not found")
                         raise ValueError(f"Plugin {plugin_name} not found")
                     result = getattr(plugin_instance, tool_name)(**parameters)
-                    xlogger.debug(f"Plugin {plugin_name} result: {result}")
-
+                    # xlogger.debug(f"Plugin {plugin_name} result: {result}")
+            context['steps'][step['name']] = result
+            xlogger.debug(context)
         # Placeholder for actual workflow execution logic
         return f"Workflow {workflow['name']} executed successfully"

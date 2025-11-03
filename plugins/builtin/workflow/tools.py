@@ -55,3 +55,4 @@ def iterate_over_list(lst: list, func: callable) -> list:
 def print_message(message: str) -> None:
     """Print a message to the console."""
     print(message)
+    return message
