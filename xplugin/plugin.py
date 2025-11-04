@@ -18,7 +18,12 @@ class Plugin:
         self.is_built_in = built_in
         pass
 
-    def run_plugin(self):
+
+    def load_config(self, config: dict):
+        return [(self, config)]
+
+
+    def run(self):
         """Main plugin execution method. Override in subclasses."""
         return "Plugin is running"
     

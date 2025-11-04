@@ -9,12 +9,13 @@ xlogger.debug("Web Plugin module loaded.")
 
 class WebPlugin(Plugin):
 
-    def __init__(self):
+    def __init__(self, built_in: bool = False):
         self.name = "WebPlugin"
         self.template_path = os.path.join(os.path.dirname(__file__), 'templates')
         self.separate_process = True
         self.continuous_run = True  # This plugin runs continuously
         self.app = None
+        self.is_built_in = built_in
         super().__init__()
         xlogger.debug("Web Plugin initialized.")
 
@@ -24,7 +25,8 @@ class WebPlugin(Plugin):
             template_content = file.read()
         return Template(template_content)
 
-    def run_plugin(self, port=8080):
+
+    def run(self, host="0.0.0.0", port=8080):
         xlogger.debug("Web Plugin is running.")
         xlogger.debug(f"Web Plugin will serve on port {port}")
         
@@ -34,7 +36,7 @@ class WebPlugin(Plugin):
             return "Web Plugin shutdown requested"
             
         try:
-            self.serve(port)
+            self.serve(host, port)
         except Exception as e:
             if not self.is_shutdown_requested():
                 xlogger.error(f"Error in web plugin: {e}")
@@ -46,7 +48,7 @@ class WebPlugin(Plugin):
     def serve_page(self, page: str) -> str:
         return f"Serving page: {page}"
 
-    def serve(self, port=8080):
+    def serve(self, host="0.0.0.0", port=8080):
         try:
             from flask import Flask
         except ImportError:
@@ -131,7 +133,7 @@ class WebPlugin(Plugin):
         
         # Run the Flask app with graceful shutdown support
         try:
-            self.app.run(port=port, host='0.0.0.0', debug=False, use_reloader=False, threaded=True)
+            self.app.run(port=port, host=host, debug=False, use_reloader=False, threaded=True)
         except OSError as e:
             if "Address already in use" in str(e):
                 xlogger.error(f"Port {port} is already in use. Web server not started.")

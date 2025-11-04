@@ -5,7 +5,7 @@ from xplugin.logger import xlogger
 xlogger.debug("HelloWorld Plugin module loaded.")
 
 class HelloWorldPlugin(Plugin):
-    def run_plugin(self):
+    def run(self):
         xlogger.debug("Hello, World! This is the HelloWorldPlugin speaking.")
         return "Hello, World! This is the HelloWorldPlugin speaking."
     

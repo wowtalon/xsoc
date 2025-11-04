@@ -13,7 +13,7 @@ steps:
       - "Doe"
   - name: step2
     action: plugin
-    target: HelloWorldPlugin.say_hello_to
+    target: hello_world.say_hello_to
     parameters:
       name: "{{ steps.step1 }}"
   - name: step3

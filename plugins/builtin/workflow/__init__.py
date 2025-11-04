@@ -1,3 +1,4 @@
+import os
 from xplugin.plugin import Plugin
 from xplugin.logger import xlogger
 import jinja2
@@ -19,13 +20,20 @@ class WorkflowPlugin(Plugin):
     separate_process = True
     singleton = False
 
-    def __init__(self):
+    def __init__(self, built_in: bool = False):
         super().__init__()
         self.description = "A plugin to manage workflows"
+        self.built_in = built_in
         __import__(f"{__name__}.tools")
+
+
+    def load_config(self, config):
+        for workflow_config_path in os.listdir(config.get('workflow_path', '')):
+            xlogger.debug(f"Loading workflow config: {workflow_config_path}")
+            yield self, {"workflow_config_path": os.path.join(config.get('workflow_path', ''), workflow_config_path)}
         
 
-    def run_plugin(self, workflow_config_path: str = None):
+    def run(self, workflow_config_path: str = None):
         # self.workflow_config_path = workflow_config_path
         xlogger.debug(f"Workflow Plugin initialized with config path: {workflow_config_path}")
         workflow = self.create_workflow(workflow_config_path) if workflow_config_path else None
@@ -72,14 +80,9 @@ class WorkflowPlugin(Plugin):
                     self.wait_or_shutdown(timeout=duration)
                 case 'plugin':
                     plugin_name, tool_name = step.get('target').split('.')
-                    # xlogger.debug(f"Invoking plugin {plugin_name} with parameters {parameters}")
-                    # xlogger.debug(self.xsoc_core['plugins'])
-                    # Placeholder for actual plugin invocation
                     # Dynamic call
-                    if plugin_name in self.xsoc_core['plugins']['built-in']:
-                        plugin_instance = self.xsoc_core['plugins']['built-in'][plugin_name]
-                    elif plugin_name in self.xsoc_core['plugins']['custom']:
-                        plugin_instance = self.xsoc_core['plugins']['custom'][plugin_name]
+                    if self.plugin_manager and self.plugin_manager.get_plugin(plugin_name):
+                        plugin_instance = self.plugin_manager.get_plugin(plugin_name)
                     else:
                         xlogger.error(f"Plugin {plugin_name} not found")
                         raise ValueError(f"Plugin {plugin_name} not found")
