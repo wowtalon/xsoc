@@ -73,6 +73,10 @@ def main():
 
     xsoc_host = os.getenv("XSOC_HOST", "localhost")
     xsoc_port = int(os.getenv("XSOC_PORT", "5000"))
+    enabled_plugins = os.getenv("XSOC_ENABLED_PLUGINS", "all").split(",")
+    xlogger.debug(f"Enabled plugins: {enabled_plugins}")
+    if enabled_plugins == ["all"]:
+        enabled_plugins = None  # Enable all plugins
     
     try:
         manager = PluginManager()
@@ -85,9 +89,9 @@ def main():
         xsoc["core"]["plugins"]["custom"] = {plugin.name: plugin for plugin in custom_plugins}
         
         for plugin in built_in_plugins:
-            if not plugin.enabled:
+            if enabled_plugins and plugin.name not in enabled_plugins:
                 continue
-            
+
             plugin.register_variable("xsoc_core", xsoc["core"])
             plugin.register_variable("shutdown_event", shutdown_event)
             
