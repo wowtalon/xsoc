@@ -6,8 +6,18 @@ class PluginManager:
     def __init__(self):
         self.plugins = []
 
+    def install_plugin(self, plugin_package: str):
+        xlogger.debug(f"Installing plugin package: {plugin_package}")
+        # unzip and install logic would go here
+        # TODO: Implement plugin installation
+        pass
+    
+
     def register_plugin(self, plugin):
+        # Register a plugin and store its info to database
+        xlogger.debug(f"Registering plugin: {plugin}")
         self.plugins.append(plugin)
+        # TODO: Store plugin info to database
 
     def get_plugins(self):
         return self.plugins

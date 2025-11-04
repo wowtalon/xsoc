@@ -5,6 +5,7 @@ class Plugin:
     singleton = True
     separate_process = False
     continuous_run = False  # Whether the plugin should run continuously
+    enabled = True
     tools = []
 
     def __init__(self):

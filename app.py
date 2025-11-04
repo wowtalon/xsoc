@@ -85,6 +85,9 @@ def main():
         xsoc["core"]["plugins"]["custom"] = {plugin.name: plugin for plugin in custom_plugins}
         
         for plugin in built_in_plugins:
+            if not plugin.enabled:
+                continue
+            
             plugin.register_variable("xsoc_core", xsoc["core"])
             plugin.register_variable("shutdown_event", shutdown_event)
             
