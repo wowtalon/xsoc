@@ -32,7 +32,7 @@ def convert_to_int(value) -> int:
         raise ValueError(f"Cannot convert {value} to int")
     
 
-def concatenate_strings(*args) -> str:
+def concatenate_strings(args) -> str:
     """Concatenate multiple strings into one."""
     return ''.join(str(arg) for arg in args)
 

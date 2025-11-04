@@ -23,11 +23,13 @@ class xLogger:
         formatter = ColoredFormatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
         handler.setFormatter(formatter)
         self.logger.addHandler(handler)
-        self.logger.setLevel(logging.DEBUG)
+        self.logger.setLevel(logging.INFO)
 
     def log(self, message: str, level: str = "info"):
         self.logger.log(logging._nameToLevel.get(level.upper(), 1), message)
 
+    def setLevel(self, level: str):
+        self.logger.setLevel(logging._nameToLevel.get(level.upper(), 1))
 
     def debug(self, message: str):
         self.log(message, level="debug")

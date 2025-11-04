@@ -26,11 +26,11 @@ class WebPlugin(Plugin):
 
     def run_plugin(self, port=8080):
         xlogger.debug("Web Plugin is running.")
-        xlogger.info(f"Web Plugin will serve on port {port}")
+        xlogger.debug(f"Web Plugin will serve on port {port}")
         
         # Check if shutdown was requested before starting
         if self.is_shutdown_requested():
-            xlogger.info("Shutdown requested, not starting web server")
+            xlogger.debug("Shutdown requested, not starting web server")
             return "Web Plugin shutdown requested"
             
         try:
@@ -39,7 +39,7 @@ class WebPlugin(Plugin):
             if not self.is_shutdown_requested():
                 xlogger.error(f"Error in web plugin: {e}")
             else:
-                xlogger.info("Web plugin stopped due to shutdown request")
+                xlogger.debug("Web plugin stopped due to shutdown request")
         
         return "Web Plugin stopped"
 
@@ -127,7 +127,7 @@ class WebPlugin(Plugin):
         def serve_page_route(page_name):
             return self.serve_page(page_name)
 
-        xlogger.info(f"Starting web server on port {port}")
+        xlogger.debug(f"Starting web server on port {port}")
         
         # Run the Flask app with graceful shutdown support
         try:

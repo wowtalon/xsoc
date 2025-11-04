@@ -7,13 +7,15 @@ class Plugin:
     continuous_run = False  # Whether the plugin should run continuously
     enabled = True
     tools = []
+    is_built_in = False
 
-    def __init__(self):
+    def __init__(self, built_in: bool = False):
         # Subclass initialization logic
         self.plugin_id = self.__class__.__name__
-        self.name = self.__class__.__name__
+        self.name = self.__module__.split('.')[-1]
         self.description = "A plugin"
         self.shutdown_event = None  # Will be set by the plugin manager
+        self.is_built_in = built_in
         pass
 
     def run_plugin(self):

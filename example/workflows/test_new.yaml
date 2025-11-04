@@ -1,0 +1,23 @@
+version: 1.0
+name: Another Test Workflow
+description: A workflow to test the system functionality
+env:
+  var1: "World"
+steps:
+  - name: step1
+    action: tool # plugin or tool
+    target: concatenate_strings # plugin or tool name
+    parameters:
+      - "John"
+      - " "
+      - "Doe"
+  - name: step2
+    action: plugin
+    target: HelloWorldPlugin.say_hello_to
+    parameters:
+      name: "{{ steps.step1 }}"
+  - name: step3
+    action: tool
+    target: is_true
+    parameters:
+      value: "{{ env.var1 == \"World\" }}"

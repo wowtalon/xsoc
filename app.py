@@ -16,10 +16,7 @@ active_threads = []
 xsoc = {
     "core": {
         "version": "0.1.0",
-        "plugins": {
-            "built-in": [],
-            "custom": []
-        },
+        "plugins": [],
         "settings": {
             "debug": True,
             "host": "localhost",
@@ -28,16 +25,30 @@ xsoc = {
     }
 }
 
+
+def load_config(config_path: str):
+    """Load configuration from a YAML file."""
+    import yaml
+    try:
+        with open(config_path, 'r') as file:
+            config = yaml.safe_load(file)
+            xlogger.debug(f"Configuration loaded from {config_path}: {config}")
+            return config
+    except Exception as e:
+        xlogger.error(f"Error loading configuration from {config_path}: {e}")
+        return {}
+
+
 def signal_handler(signum, frame):
     """Handle shutdown signals gracefully"""
-    xlogger.info("Received shutdown signal, cleaning up threads...")
+    xlogger.debug("Received shutdown signal, cleaning up threads...")
     shutdown_event.set()
     cleanup_threads()
     sys.exit(0)
 
 def cleanup_threads():
     """Clean up all active threads"""
-    xlogger.info("Cleaning up active threads...")
+    xlogger.debug("Cleaning up active threads...")
     shutdown_event.set()
     
     for thread in active_threads:
@@ -48,7 +59,7 @@ def cleanup_threads():
                 xlogger.warning(f"Thread {thread.name} did not finish gracefully")
     
     active_threads.clear()
-    xlogger.info("Thread cleanup completed")
+    xlogger.debug("Thread cleanup completed")
 
 def plugin_wrapper(plugin, *args, **kwargs):
     """Wrapper function to run plugins with shutdown event monitoring"""
@@ -71,72 +82,73 @@ def main():
     # Register cleanup function to run at exit
     atexit.register(cleanup_threads)
 
-    xsoc_host = os.getenv("XSOC_HOST", "localhost")
-    xsoc_port = int(os.getenv("XSOC_PORT", "5000"))
-    enabled_plugins = os.getenv("XSOC_ENABLED_PLUGINS", "all").split(",")
-    xlogger.debug(f"Enabled plugins: {enabled_plugins}")
-    if enabled_plugins == ["all"]:
-        enabled_plugins = None  # Enable all plugins
+    config_file_path = os.getenv("XSOC_CONFIG_PATH", "config.yaml")
+    xlogger.debug(f"Loading configuration from {config_file_path}")
+    config = load_config("config.yaml")
+
+    if config.get("debug", False):
+        xlogger.setLevel("debug")
+        xlogger.debug("Debug mode is enabled")
+    else:
+        xlogger.setLevel("info")
     
     try:
         manager = PluginManager()
         
         # Initialize built-in plugins
-        built_in_plugins = manager.init_plugins_from_path('./plugins/builtin')
-        xsoc["core"]["plugins"]["built-in"] = {plugin.name: plugin for plugin in built_in_plugins}
+        built_in_plugins = manager.init_plugins_from_path('./plugins/builtin', built_in=True)
+        # xsoc["core"]["plugins"]["builtin"] = {plugin.name: plugin for plugin in built_in_plugins}
+        # xlogger.debug(f"Built-in plugins: {list(xsoc['core']['plugins']['builtin'])}")
         # Initialize custom plugins
-        custom_plugins = manager.init_plugins_from_path('./plugins/custom')
-        xsoc["core"]["plugins"]["custom"] = {plugin.name: plugin for plugin in custom_plugins}
+        custom_plugins = manager.init_plugins_from_path('./plugins/custom', built_in=False)
+        # xsoc["core"]["plugins"]["custom"] = {plugin.name: plugin for plugin in custom_plugins}
+        xsoc["core"]["plugins"] = built_in_plugins + custom_plugins
         
-        for plugin in built_in_plugins:
-            if enabled_plugins and plugin.name not in enabled_plugins:
+        for plugin in xsoc["core"]["plugins"]:
+            if plugin.name in config['plugins'] and config['plugins'][plugin.name].get('enabled', True) is False:
+                xlogger.debug(f"Skipping disabled plugin: {plugin.name}")
                 continue
 
             plugin.register_variable("xsoc_core", xsoc["core"])
             plugin.register_variable("shutdown_event", shutdown_event)
             
-            xlogger.debug(plugin.name)
             if plugin.separate_process:
-                if plugin.name == "WebPlugin":
-                    # continue
+                if plugin.name == "web":
                     thread = Thread(target=plugin_wrapper, args=(plugin,), kwargs={"port": xsoc_port}, daemon=True)
-                elif plugin.name == "WorkflowPlugin":
-                    thread = Thread(target=plugin_wrapper, args=(plugin,), kwargs={"workflow_config_path": "./example/workflows/test.yaml"}, daemon=True)
+                elif plugin.name == "workflow":
+                    workflow_path = os.getenv("PLUGIN_WORKFLOW_PATH", "./data/workflows/")
+                    xlogger.debug(f"Workflow path: {workflow_path}")
+                    for config_file in os.listdir(workflow_path):
+                        if config_file.endswith(".yaml") or config_file.endswith(".yml"):
+                            config_path = os.path.join(workflow_path, config_file)
+                            xlogger.debug(f"Starting workflow from config: {config_path}")
+                            thread = Thread(target=plugin_wrapper, args=(plugin,), kwargs={"workflow_config_path": config_path}, daemon=True)
+                            thread.name = f"Plugin-{plugin.name}-{config_file}"
+                            active_threads.append(thread)
+                            thread.start()
+                    continue
                 else:
                     thread = Thread(target=plugin_wrapper, args=(plugin,), daemon=True)
                 thread.name = f"Plugin-{plugin.name}"
                 active_threads.append(thread)
                 thread.start()
-                xlogger.info(f"Started thread for plugin: {plugin.name}")
+                xlogger.debug(f"Started thread for plugin: {plugin.name}")
             else:
                 plugin.run_plugin()
             # xlogger.debug(active_threads)
         
         
-        for plugin in custom_plugins:
-            plugin.register_variable("xsoc_core", xsoc["core"])
-            plugin.register_variable("shutdown_event", shutdown_event)
-            
-            if plugin.separate_process:
-                thread = Thread(target=plugin_wrapper, args=(plugin,), daemon=True)
-                thread.name = f"Plugin-{plugin.name}"
-                active_threads.append(thread)
-                thread.start()
-                xlogger.info(f"Started thread for plugin: {plugin.name}")
-            else:
-                plugin.run_plugin()
-        
         # Keep main thread alive if there are daemon threads running
         if active_threads:
-            xlogger.info(f"Running with {len(active_threads)} plugin threads")
+            xlogger.debug(f"Running with {len(active_threads)} plugin threads")
             try:
                 while not shutdown_event.is_set() and any(t.is_alive() for t in active_threads):
                     shutdown_event.wait(timeout=1.0)
             except KeyboardInterrupt:
-                xlogger.info("Keyboard interrupt received")
+                xlogger.debug("Keyboard interrupt received")
                 shutdown_event.set()
         
-        xlogger.info("Main application finished")
+        xlogger.debug("Main application finished")
         
     except Exception as e:
         xlogger.error(f"Error in main application: {e}")

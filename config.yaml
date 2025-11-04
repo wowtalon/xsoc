@@ -1,0 +1,8 @@
+debug: true
+plugins:
+  workflow:
+    workflow_path: ./example/workflows/
+  web:
+    enabled: false
+    host: localhost
+    port: 8090

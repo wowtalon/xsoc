@@ -28,7 +28,7 @@ class PluginManager:
     def count_plugins(self):
         return len(self.plugins)
     
-    def init_plugins_from_path(self, path: str):
+    def init_plugins_from_path(self, path: str, built_in: bool = False):
         xlogger.debug(f"Initializing plugins from path: {path}")
         new_plugins = []  # Track only newly loaded plugins
         # Register plugins from the given path
@@ -45,7 +45,7 @@ class PluginManager:
                     # Instantiate the plugin class (assuming a class named 'Plugin' exists)
                     plugin_class = getattr(module, plugin_name, None)
                     if plugin_class:
-                        plugin_instance = plugin_class()
+                        plugin_instance = plugin_class(built_in=built_in)
                         self.register_plugin(plugin_instance)
                         new_plugins.append(plugin_instance)  # Add to new plugins list
                 except Exception as e:
