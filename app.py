@@ -1,16 +1,13 @@
 from xplugin.plugin_manager import PluginManager
-import logging
+from threading import Thread, Event
+from dotenv import load_dotenv
+from xplugin.logger import xlogger
 import signal
 import sys
 import os
 import atexit
-from threading import Thread, Event
-from dotenv import load_dotenv
 
 load_dotenv()
-
-logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger(__name__)
 
 # Global shutdown event
 shutdown_event = Event()
@@ -33,25 +30,25 @@ xsoc = {
 
 def signal_handler(signum, frame):
     """Handle shutdown signals gracefully"""
-    logger.info("Received shutdown signal, cleaning up threads...")
+    xlogger.info("Received shutdown signal, cleaning up threads...")
     shutdown_event.set()
     cleanup_threads()
     sys.exit(0)
 
 def cleanup_threads():
     """Clean up all active threads"""
-    logger.info("Cleaning up active threads...")
+    xlogger.info("Cleaning up active threads...")
     shutdown_event.set()
     
     for thread in active_threads:
         if thread.is_alive():
-            logger.debug(f"Waiting for thread {thread.name} to finish...")
+            xlogger.debug(f"Waiting for thread {thread.name} to finish...")
             thread.join(timeout=5.0)  # Wait up to 5 seconds for each thread
             if thread.is_alive():
-                logger.warning(f"Thread {thread.name} did not finish gracefully")
+                xlogger.warning(f"Thread {thread.name} did not finish gracefully")
     
     active_threads.clear()
-    logger.info("Thread cleanup completed")
+    xlogger.info("Thread cleanup completed")
 
 def plugin_wrapper(plugin, *args, **kwargs):
     """Wrapper function to run plugins with shutdown event monitoring"""
@@ -62,9 +59,9 @@ def plugin_wrapper(plugin, *args, **kwargs):
                 break
             shutdown_event.wait(timeout=1.0)  # Check for shutdown every second
     except Exception as e:
-        logger.error(f"Error in plugin {plugin.name}: {e}")
+        xlogger.error(f"Error in plugin {plugin.name}: {e}")
     finally:
-        logger.debug(f"Plugin {plugin.name} thread finished")
+        xlogger.debug(f"Plugin {plugin.name} thread finished")
 
 def main():
     # Register signal handlers for graceful shutdown
@@ -91,7 +88,7 @@ def main():
             plugin.register_variable("xsoc_core", xsoc["core"])
             plugin.register_variable("shutdown_event", shutdown_event)
             
-            logger.debug(plugin.name)
+            xlogger.debug(plugin.name)
             if plugin.separate_process:
                 if plugin.name == "WebPlugin":
                     # continue
@@ -103,10 +100,10 @@ def main():
                 thread.name = f"Plugin-{plugin.name}"
                 active_threads.append(thread)
                 thread.start()
-                logger.info(f"Started thread for plugin: {plugin.name}")
+                xlogger.info(f"Started thread for plugin: {plugin.name}")
             else:
                 plugin.run_plugin()
-            # logger.debug(active_threads)
+            # xlogger.debug(active_threads)
         
         
         for plugin in custom_plugins:
@@ -118,24 +115,24 @@ def main():
                 thread.name = f"Plugin-{plugin.name}"
                 active_threads.append(thread)
                 thread.start()
-                logger.info(f"Started thread for plugin: {plugin.name}")
+                xlogger.info(f"Started thread for plugin: {plugin.name}")
             else:
                 plugin.run_plugin()
         
         # Keep main thread alive if there are daemon threads running
         if active_threads:
-            logger.info(f"Running with {len(active_threads)} plugin threads")
+            xlogger.info(f"Running with {len(active_threads)} plugin threads")
             try:
                 while not shutdown_event.is_set() and any(t.is_alive() for t in active_threads):
                     shutdown_event.wait(timeout=1.0)
             except KeyboardInterrupt:
-                logger.info("Keyboard interrupt received")
+                xlogger.info("Keyboard interrupt received")
                 shutdown_event.set()
         
-        logger.info("Main application finished")
+        xlogger.info("Main application finished")
         
     except Exception as e:
-        logger.error(f"Error in main application: {e}")
+        xlogger.error(f"Error in main application: {e}")
         shutdown_event.set()
     finally:
         cleanup_threads()

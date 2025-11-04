@@ -38,18 +38,18 @@ class WorkflowPlugin(Plugin):
     def create_workflow(self, config_path: str):
         """Create a workflow from a configuration file."""
         workflow = parse_workflow_config(config_path)
-        print(f"Workflow created from {config_path}: {workflow}")
+        xlogger.debug(f"Workflow created from {config_path}: {workflow}")
         return workflow
     
     def run_workflow(self, workflow):
         """Run a workflow."""
-        print(f"Running workflow: {workflow}")
+        xlogger.debug(f"Running workflow: {workflow}")
         context = {
             "env": workflow.get('env', {}),
             "steps": {}
         }
         for step in workflow.get('steps', []):
-            print(f"Executing step: {step}")
+            xlogger.debug(f"Executing step: {step}")
             # Here you would add logic to execute each step
             parameters = step.get('parameters', {})
             xlogger.debug(f"Original parameters: {parameters}")

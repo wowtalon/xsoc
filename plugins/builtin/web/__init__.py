@@ -1,15 +1,11 @@
-import logging
-import os
 from xplugin.plugin import Plugin
 from flask import Flask, url_for
 from jinja2 import Template
+from xplugin.logger import xlogger
+import logging
+import os
 
-logger = logging.getLogger(__name__)
-
-def log_func(message: str, level: str = "info"):
-    logger.log(logging._nameToLevel.get(level.upper(), 1), f"PluginManager [{level}]: {message}")
-
-logger.debug("Web Plugin module loaded.")
+xlogger.debug("Web Plugin module loaded.")
 
 class WebPlugin(Plugin):
 
@@ -20,7 +16,7 @@ class WebPlugin(Plugin):
         self.continuous_run = True  # This plugin runs continuously
         self.app = None
         super().__init__()
-        log_func("Web Plugin initialized.", level="debug")
+        xlogger.debug("Web Plugin initialized.")
 
     def get_template(self, template_name: str,) -> Template:
         template_file = os.path.join(self.template_path, template_name)
@@ -29,21 +25,21 @@ class WebPlugin(Plugin):
         return Template(template_content)
 
     def run_plugin(self, port=8080):
-        log_func("Web Plugin is running.", level="info")
-        log_func(f"Web Plugin will serve on port {port}", level="info")
+        xlogger.debug("Web Plugin is running.")
+        xlogger.info(f"Web Plugin will serve on port {port}")
         
         # Check if shutdown was requested before starting
         if self.is_shutdown_requested():
-            log_func("Shutdown requested, not starting web server", level="info")
+            xlogger.info("Shutdown requested, not starting web server")
             return "Web Plugin shutdown requested"
             
         try:
             self.serve(port)
         except Exception as e:
             if not self.is_shutdown_requested():
-                log_func(f"Error in web plugin: {e}", level="error")
+                xlogger.error(f"Error in web plugin: {e}")
             else:
-                log_func("Web plugin stopped due to shutdown request", level="info")
+                xlogger.info("Web plugin stopped due to shutdown request")
         
         return "Web Plugin stopped"
 
@@ -54,7 +50,7 @@ class WebPlugin(Plugin):
         try:
             from flask import Flask
         except ImportError:
-            log_func("Flask not installed. Install with: pip install flask", level="error")
+            xlogger.error("Flask not installed. Install with: pip install flask")
             return
             
         self.app = Flask(__name__)
@@ -131,14 +127,14 @@ class WebPlugin(Plugin):
         def serve_page_route(page_name):
             return self.serve_page(page_name)
 
-        log_func(f"Starting web server on port {port}", level="info")
+        xlogger.info(f"Starting web server on port {port}")
         
         # Run the Flask app with graceful shutdown support
         try:
             self.app.run(port=port, host='0.0.0.0', debug=False, use_reloader=False, threaded=True)
         except OSError as e:
             if "Address already in use" in str(e):
-                log_func(f"Port {port} is already in use. Web server not started.", level="error")
+                xlogger.error(f"Port {port} is already in use. Web server not started.")
             else:
                 raise
 

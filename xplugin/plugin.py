@@ -1,3 +1,5 @@
+from xplugin.logger import xlogger
+
 class Plugin:
 
     singleton = True
@@ -32,16 +34,16 @@ class Plugin:
     
     def register_tool(self, tool: callable):
         # Logic to register a tool
-        print(f"Registering tool: {tool.__name__}")
+        xlogger.debug(f"Registering tool: {tool.__name__}")
         self.tools.append(tool)
 
     def register_variable(self, var_name: str, value):
         setattr(self, var_name, value)
-        print(f"Registered variable: {var_name} with value: {value}")
+        xlogger.debug(f"Registered variable: {var_name} with value: {value}")
 
     def run_tool(self, tool_name, *args, **kwargs):
-        print(f"Running tool: {tool_name} with args: {args} and kwargs: {kwargs}")
-        print(self.tools)
+        xlogger.debug(f"Running tool: {tool_name} with args: {args} and kwargs: {kwargs}")
+        xlogger.debug(self.tools)
         for tool in self.tools:
             if tool.__name__ == tool_name:
                 return tool(*args, **kwargs)
