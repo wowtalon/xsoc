@@ -1,8 +1,19 @@
 debug: true
 plugins:
   workflow:
-    workflow_path: ./example/workflows/
+    enabled: true
+    params:
+      workflow_path: ./example/workflows/
   web:
     enabled: false
-    host: localhost
-    port: 8090
+    params:
+      host: localhost
+      port: 8090
+  cron:
+    enabled: true
+    dependencies:
+      - workflow
+    params:
+      cron_path: ./example/crons/
+  hello_world:
+    enabled: true

@@ -1,0 +1,9 @@
+version: 1.0
+name: Test cron job1
+description: A cron job to test the system functionality
+enabled: true
+schedule:
+  minute: "*/1"
+job:
+  type: workflow
+  target: Test Workflow

@@ -27,6 +27,25 @@ class Plugin:
         """Main plugin execution method. Override in subclasses."""
         return "Plugin is running"
     
+
+    def run_in_process(self, shutdown_event, *args, **kwargs):
+        """Run the plugin in a separate process"""
+        self.shutdown_event = shutdown_event
+        xlogger.debug(f"Plugin {self.name} started in separate process")
+        try:
+            while not self.shutdown_event.is_set() and self.continuous_run:
+                xlogger.debug(self.shutdown_event.is_set())
+                self.run(*args, **kwargs)
+            xlogger.debug(f"Plugin {self.name} process exiting gracefully")
+            self.shutdown()
+        except Exception as e:
+            xlogger.error(f"Error in plugin {self.name} process: {e}")
+
+    
+    def shutdown(self):
+        """Shutdown the plugin gracefully"""
+        pass
+    
     def is_shutdown_requested(self):
         """Check if shutdown has been requested"""
         return self.shutdown_event and self.shutdown_event.is_set()

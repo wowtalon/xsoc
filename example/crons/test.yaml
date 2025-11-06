@@ -1,0 +1,11 @@
+version: 1.0
+name: Test cron job
+description: A cron job to test the system functionality
+enabled: false
+schedule:
+  minute: "*/1"
+job:
+  type: tool
+  target: print_message
+  params:
+    message: "This is a scheduled job running every minute."

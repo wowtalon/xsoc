@@ -1,3 +1,5 @@
+import argparse
+import sys
 from xplugin.plugin_manager import PluginManager
 from dotenv import load_dotenv
 from xplugin.logger import xlogger
@@ -32,9 +34,8 @@ def load_config(config_path: str):
         return {}
 
 
-def main():
+def main(config_path: str, plugin: str = None):
     
-
     config_file_path = os.getenv("XSOC_CONFIG_PATH", "config.yaml")
     xlogger.debug(f"Loading configuration from {config_file_path}")
     config = load_config("config.yaml")
@@ -48,11 +49,18 @@ def main():
     manager = PluginManager(config.get("plugins", {}))
     manager.init_plugins_from_path('./plugins/builtin', built_in=True)
     manager.init_plugins_from_path('./plugins/custom', built_in=False)
-    manager.run()
+    if plugin:
+        xlogger.debug(f"Initializing specific plugin: {plugin}")
+        manager.run_plugins([plugin])
+    else:
+        manager.run()
+
         
         
-        
-    
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description="XSOC - eXtensible Service-Oriented Controller")
+    parser.add_argument("--config", default="config.yaml", help="Path to the configuration file")
+    parser.add_argument("--plugin", help="Specific plugin to run")
+    args = parser.parse_args()
+    main(args.config, args.plugin)

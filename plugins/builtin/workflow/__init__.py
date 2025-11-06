@@ -19,6 +19,7 @@ class WorkflowPlugin(Plugin):
     _workflow = None  # Placeholder for workflow object
     separate_process = True
     singleton = False
+    workflows = {}
 
     def __init__(self, built_in: bool = False):
         super().__init__()
@@ -30,24 +31,30 @@ class WorkflowPlugin(Plugin):
     def load_config(self, config):
         for workflow_config_path in os.listdir(config.get('workflow_path', '')):
             xlogger.debug(f"Loading workflow config: {workflow_config_path}")
-            yield self, {"workflow_config_path": os.path.join(config.get('workflow_path', ''), workflow_config_path)}
+            yield self, self.create_workflow(os.path.join(config.get('workflow_path', ''), workflow_config_path))
         
 
-    def run(self, workflow_config_path: str = None):
+    def run(self, **kwargs):
         # self.workflow_config_path = workflow_config_path
-        xlogger.debug(f"Workflow Plugin initialized with config path: {workflow_config_path}")
-        workflow = self.create_workflow(workflow_config_path) if workflow_config_path else None
+        xlogger.debug(f"Workflow Plugin initialized with config path: {kwargs.get('workflow', {}).get('config_path')}")
         xlogger.debug("Running Workflow Plugin")
-        if workflow:
-            xlogger.debug(f"Running workflow: {workflow['name']}")
-            return self.run_workflow(workflow)
+        if kwargs.get('workflow'):
+            xlogger.debug(f"Running workflow: {kwargs['workflow']['name']}")
+            return self.run_workflow(kwargs['workflow'])
         return "Workflow Plugin is running"
+    
+
+    def get_workflow(self, name: str):
+        """Retrieve a workflow by name."""
+        return self.workflows.get(name, None)
     
 
     def create_workflow(self, config_path: str):
         """Create a workflow from a configuration file."""
         workflow = parse_workflow_config(config_path)
         xlogger.debug(f"Workflow created from {config_path}: {workflow}")
+        xlogger.debug(f"Registering workflow: {workflow['name']}")
+        self.workflows[workflow['name']] = workflow
         return workflow
     
     def run_workflow(self, workflow):
@@ -90,5 +97,5 @@ class WorkflowPlugin(Plugin):
                     # xlogger.debug(f"Plugin {plugin_name} result: {result}")
             context['steps'][step['name']] = result
             xlogger.debug(context)
-        # Placeholder for actual workflow execution logic
+        self.continuous_run = False
         return f"Workflow {workflow['name']} executed successfully"

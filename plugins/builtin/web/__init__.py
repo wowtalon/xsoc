@@ -1,5 +1,5 @@
 from xplugin.plugin import Plugin
-from flask import Flask, url_for
+from flask import Flask, url_for, request
 from jinja2 import Template
 from xplugin.logger import xlogger
 import logging
@@ -44,6 +44,12 @@ class WebPlugin(Plugin):
                 xlogger.debug("Web plugin stopped due to shutdown request")
         
         return "Web Plugin stopped"
+    
+    
+    def shutdown(self):
+        xlogger.debug("Shutting down Web Plugin...")
+        # TODO
+
 
     def serve_page(self, page: str) -> str:
         return f"Serving page: {page}"
