@@ -2,13 +2,34 @@
 
 [![Python Version](https://img.shields.io/badge/python-3.12+-blue.svg)](https://python.org)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-0.1.0-orange.svg)](https://github.com/wowtalon/xsoc)
+[![Version](https://img.shields.io/badge/version-0.2.0-orange.svg)](https://github.com/wowtalon/xsoc)
 
 中文版本 | [English](README.md)
 
 ## 概述
 
 XSOC（可扩展安全运营中心）是一个现代化的、基于插件的安全运营平台，旨在提供全面的安全监控、事件响应和威胁管理能力。采用 Python 构建，具有灵活的插件架构，XSOC 允许组织根据其特定需求定制和扩展安全运营。
+
+## v0.2.0 新功能
+
+### 🎯 **增强的工作流引擎**
+- **Jinja2 模板集成**: 使用 `{{ variable }}` 语法进行动态参数解析
+- **上下文变量**: 无缝访问环境变量和步骤结果
+- **高级参数解析**: 复杂的插值和数据转换
+
+### 🎨 **彩色日志系统**
+- **可视化日志级别**: 颜色编码输出便于调试（调试=青色，信息=绿色，警告=黄色，错误=红色，严重=洋红色）
+- **增强的开发体验**: 提高可读性和更快的问题识别
+
+### 🔧 **全面的工作流工具**
+- **内置实用程序**: 10+ 个常用操作的实用函数
+- **类型操作**: 转换、检查和验证函数
+- **流程控制**: 条件逻辑和迭代支持
+
+### 🚀 **性能改进**
+- **基于字典的插件存储**: 插件访问的 O(1) 查找性能
+- **优化的插件管理**: 更好的注册和初始化过程
+- **增强的错误处理**: 更强大的错误恢复和报告
 
 ## 特性
 
@@ -80,10 +101,11 @@ xsoc/
 
 当前项目依赖:
 ```
+apscheduler>=3.11.1     # 高级 Python 调度器用于工作流定时
 python-dotenv>=0.9.9    # 环境变量管理
 flask>=3.1.2            # Web 框架
-pyyaml>=6.0.3          # YAML 配置解析
 jinja2>=3.0.0          # 工作流模板引擎
+pyyaml>=6.0.3          # YAML 配置解析
 ```
 
 ### 环境变量
@@ -364,9 +386,23 @@ flake8 .
 
 ## 更新日志
 
-### v0.1.0 (当前版本)
+### v0.2.0 (当前版本)
+- Jinja2 模板集成实现动态工作流
+- 带上下文变量的增强工作流引擎
+- 带 xLogger 的彩色日志系统
+- 全面的工作流工具库
+- 提高性能的插件字典结构
+- 改进的错误处理和线程管理
+
+### v0.1.0
 - 初始版本发布
 - 插件架构实现
+- Web 界面插件
+- 基础工作流引擎插件
+- 多线程支持
+- 优雅关闭处理
+
+详细更新日志请参见 [CHANGELOG.md](CHANGELOG.md)
 - Web 界面插件
 - 工作流引擎插件
 - 多线程支持

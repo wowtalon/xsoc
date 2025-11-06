@@ -20,7 +20,7 @@ class PluginManager:
     def cleanup_processes(self):
         """Clean up all active processes"""
         xlogger.debug("Cleaning up active processes...")
-        self.shutdown_event.set()
+        # self.shutdown_event.set()
 
         for process in self.active_processes:
             if process.is_alive():

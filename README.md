@@ -2,13 +2,34 @@
 
 [![Python Version](https://img.shields.io/badge/python-3.12+-blue.svg)](https://python.org)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-0.1.0-orange.svg)](https://github.com/wowtalon/xsoc)
+[![Version](https://img.shields.io/badge/version-0.2.0-orange.svg)](https://github.com/wowtalon/xsoc)
 
 [中文版本](README_zh.md) | English
 
 ## Overview
 
 XSOC (eXtensible Security Operations Center) is a modern, plugin-based security operations platform designed to provide comprehensive security monitoring, incident response, and threat management capabilities. Built with Python and featuring a flexible plugin architecture, XSOC allows organizations to customize and extend their security operations according to their specific needs.
+
+## What's New in v0.2.0
+
+### 🎯 **Enhanced Workflow Engine**
+- **Jinja2 Template Integration**: Dynamic parameter resolution using `{{ variable }}` syntax
+- **Context Variables**: Access environment variables and step results seamlessly
+- **Advanced Parameter Resolution**: Complex interpolation and data transformation
+
+### 🎨 **Colored Logging System**
+- **Visual Log Levels**: Color-coded output for better debugging (Debug=Cyan, Info=Green, Warning=Yellow, Error=Red, Critical=Magenta)
+- **Enhanced Developer Experience**: Improved readability and faster issue identification
+
+### 🔧 **Comprehensive Workflow Tools**
+- **Built-in Utilities**: 10+ utility functions for common operations
+- **Type Operations**: Conversion, checking, and validation functions
+- **Flow Control**: Conditional logic and iteration support
+
+### 🚀 **Performance Improvements**
+- **Dictionary-based Plugin Storage**: O(1) lookup performance for plugin access
+- **Optimized Plugin Management**: Better registration and initialization processes
+- **Enhanced Error Handling**: More robust error recovery and reporting
 
 ## Features
 
@@ -80,10 +101,11 @@ xsoc/
 
 Current project dependencies:
 ```
+apscheduler>=3.11.1     # Advanced Python Scheduler for workflow timing
 python-dotenv>=0.9.9    # Environment variable management
 flask>=3.1.2            # Web framework
-pyyaml>=6.0.3          # YAML configuration parsing
 jinja2>=3.0.0          # Template engine for workflows
+pyyaml>=6.0.3          # YAML configuration parsing
 ```
 
 ### Environment Variables
@@ -364,13 +386,23 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Changelog
 
-### v0.1.0 (Current)
+### v0.2.0 (Current)
+- Jinja2 template integration for dynamic workflows
+- Enhanced workflow engine with context variables
+- Colored logging system with xLogger
+- Comprehensive workflow tools library
+- Plugin dictionary structure for better performance
+- Improved error handling and thread management
+
+### v0.1.0
 - Initial release
 - Plugin architecture implementation
 - Web interface plugin
-- Workflow engine plugin
+- Basic workflow engine plugin
 - Multi-threading support
 - Graceful shutdown handling
+
+For detailed changelog, see [CHANGELOG.md](CHANGELOG.md)
 
 ## Roadmap
 

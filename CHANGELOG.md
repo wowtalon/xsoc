@@ -7,31 +7,54 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Planned
+- Plugin marketplace integration
+- Advanced workflow features and conditional logic
+- REST API for external integrations
+- Container deployment support
+- Real-time event streaming
+- Database integration for persistent storage
+- Enhanced web UI with real-time updates
+- Security scanning and vulnerability management
+
+## [0.2.0] - 2025-11-06
+
 ### Added
 - Jinja2 template parsing for dynamic parameter resolution in workflows
 - Enhanced workflow engine with context variable support
-- Colored logging system with level-based color coding
+- Colored logging system with level-based color coding (xLogger class)
 - Dynamic tool loading and execution framework
-- Workflow tools library with common utility functions
-- Environment variable and step result referencing in workflows
-- Plugin dictionary structure for improved plugin management
+- Comprehensive workflow tools library with utility functions:
+  - Conditional operations (`if_condition_met`, `case_condition_met`)
+  - Type checking (`is_true`, `is_false`, `is_none`)
+  - Type conversion (`convert_to_string`, `convert_to_int`)
+  - String operations (`concatenate_strings`)
+  - Utility functions (`print_message`, `loop_until_condition_met`)
+- Environment variable and step result referencing in workflows using `{{ }}` syntax
+- Plugin dictionary structure for improved plugin management and lookup
+- Enhanced documentation with workflow examples and API references
 
 ### Changed
-- Plugin storage structure from lists to dictionaries for better lookup
-- Workflow parameter resolution now uses Jinja2 templating
-- Enhanced workflow step execution with better error handling
+- Plugin storage structure from lists to dictionaries for O(1) lookup performance
+- Workflow parameter resolution now uses Jinja2 templating engine
+- Enhanced workflow step execution with better error handling and context management
 - Improved plugin initialization and registration process
+- Plugin access pattern changed to dictionary-based lookup by name
+- Workflow engine now supports complex parameter interpolation
 
 ### Fixed
-- Plugin duplicate registration issue resolved
-- Thread management and cleanup improvements
-- Workflow context variable resolution
+- Plugin duplicate registration issue resolved through improved plugin manager
+- Thread management and cleanup improvements for graceful shutdown
+- Workflow context variable resolution and parameter passing
+- Plugin wrapper error handling and logging improvements
 
 ### Technical Improvements
-- Added xLogger class with colored console output
-- Enhanced plugin wrapper with better error handling
-- Improved workflow configuration parsing
+- Added xLogger class with colored console output for better debugging
+- Enhanced plugin wrapper with comprehensive error handling
+- Improved workflow configuration parsing with YAML validation
 - Better separation of built-in and custom plugin handling
+- Dynamic module importing for workflow tools
+- Context-aware parameter resolution in workflow steps
 
 ## [0.1.0] - 2025-11-03
 
