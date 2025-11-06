@@ -31,7 +31,9 @@ class WorkflowPlugin(Plugin):
     def load_config(self, config):
         for workflow_config_path in os.listdir(config.get('workflow_path', '')):
             xlogger.debug(f"Loading workflow config: {workflow_config_path}")
-            yield self, self.create_workflow(os.path.join(config.get('workflow_path', ''), workflow_config_path))
+            yield self, {
+                'workflow': self.create_workflow(os.path.join(config.get('workflow_path', ''), workflow_config_path))
+            }
         
 
     def run(self, **kwargs):
