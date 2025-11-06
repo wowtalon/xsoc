@@ -40,7 +40,7 @@ class WorkflowPlugin(Plugin):
         # self.workflow_config_path = workflow_config_path
         xlogger.debug(f"Workflow Plugin initialized with config path: {kwargs.get('workflow', {}).get('config_path')}")
         xlogger.debug("Running Workflow Plugin")
-        if kwargs.get('workflow'):
+        if kwargs.get('workflow') and kwargs.get('workflow').get('enabled', True):
             xlogger.debug(f"Running workflow: {kwargs['workflow']['name']}")
             return self.run_workflow(kwargs['workflow'])
         return "Workflow Plugin is running"
