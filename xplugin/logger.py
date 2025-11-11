@@ -1,3 +1,4 @@
+from inspect import stack
 import logging
 
 class ColoredFormatter(logging.Formatter):
@@ -13,6 +14,9 @@ class ColoredFormatter(logging.Formatter):
     def format(self, record):
         log_color = self.COLORS.get(record.levelname, self.RESET)
         record.levelname = f"{log_color}{record.levelname}{self.RESET}"
+        frame = stack()[len(stack()) - 3]
+        record.module = frame.filename.split('/')[-1].split('.')[0]
+        record.funcName = frame.function
         return super().format(record)
 
 class xLogger:
@@ -20,7 +24,7 @@ class xLogger:
         self.logger = logging.getLogger(name)
         handler = logging.StreamHandler()
 
-        formatter = ColoredFormatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        formatter = ColoredFormatter('%(asctime)s - [%(module)s:%(funcName)s] - %(levelname)s - %(message)s')
         handler.setFormatter(formatter)
         self.logger.addHandler(handler)
         self.logger.setLevel(logging.INFO)
