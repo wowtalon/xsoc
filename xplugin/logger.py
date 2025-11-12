@@ -14,7 +14,8 @@ class ColoredFormatter(logging.Formatter):
     def format(self, record):
         log_color = self.COLORS.get(record.levelname, self.RESET)
         record.levelname = f"{log_color}{record.levelname}{self.RESET}"
-        frame = stack()[len(stack()) - 3]
+        # Get the caller's frame information
+        frame = stack()[-2 - (len(stack()) - 12)]
         record.module = frame.filename.split('/')[-1].split('.')[0]
         record.funcName = frame.function
         return super().format(record)
