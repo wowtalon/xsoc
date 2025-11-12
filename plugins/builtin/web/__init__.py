@@ -106,9 +106,9 @@ class WebPlugin(Plugin):
         @self.app.route('/xplugin')
         def xplugin():
             plugin_list = []
-            if hasattr(self, 'xsoc_core'):
-                plugin_list = self.xsoc_core.get("plugins", {}).get("built-in", []) + \
-                              self.xsoc_core.get("plugins", {}).get("custom", [])
+            if hasattr(self, 'plugin_manager'):
+                xlogger.debug(f"Plugin manager found with plugins: {self.plugin_manager.plugins}")
+                plugin_list = [self.plugin_manager.plugins[plugin]['instance'] for plugin in self.plugin_manager.plugins.keys()]
             try:
                 xsoc_base_template = self.get_template("xsoc-base.html")
             except FileNotFoundError:
@@ -134,6 +134,21 @@ class WebPlugin(Plugin):
         @self.app.route('/page/<page_name>')
         def serve_page_route(page_name):
             return self.serve_page(page_name)
+        
+
+        @self.app.route('/workflow/<workflow_id>', methods=['POST', 'GET'])
+        def workflow_endpoint(workflow_id):
+            workflow_plugin = self.plugin_manager.get_plugin("workflow")
+            if not workflow_plugin:
+                return {"error": "Workflow plugin not available"}, 500
+            workflow = workflow_plugin.get_workflow(workflow_id)
+            if request.method == 'POST':
+                data = request.json
+                workflow['env'].update(data.get('env', {}))
+                result = workflow_plugin.run_workflow(workflow)
+                return {"status": "Workflow received", "workflow_id": workflow_id, "data": result}
+            else:
+                return {"status": "Workflow endpoint", "workflow_id": workflow_id, "workflow": workflow}
 
         xlogger.debug(f"Starting web server on port {port}")
         
