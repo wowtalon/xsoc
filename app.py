@@ -37,25 +37,40 @@ def load_config(config_path: str):
 def main(config_path: str, plugin: str = None):
     
     config_file_path = os.getenv("XSOC_CONFIG_PATH", "config.yaml")
-    xlogger.debug(f"Loading configuration from {config_file_path}")
-    config = load_config("config.yaml")
+    if config_path:
+        config_file_path = config_path
+    xlogger.info(f"Loading configuration from {config_file_path}")
+    config = load_config(config_file_path)
 
     if config.get("debug", False):
         xlogger.setLevel("debug")
         xlogger.debug("Debug mode is enabled")
     else:
         xlogger.setLevel("info")
-    
-    manager = PluginManager(config.get("plugins", {}))
-    manager.init_plugins_from_path('./plugins/builtin', built_in=True)
-    manager.init_plugins_from_path('./plugins/custom', built_in=False)
-    if plugin:
-        xlogger.debug(f"Initializing specific plugin: {plugin}")
-        manager.run_plugins([plugin])
-    else:
-        manager.run()
 
-        
+    plugins = []
+    for plugin_name, plugin_info in config.get("plugins", {}).items():
+        if plugin_info.get("enabled", True) is False:
+            xlogger.debug(f"Plugin {plugin_name} is disabled in configuration")
+        else:
+            plugins.append(
+                {
+                    "name": plugin_name,
+                    "builtin": plugin_info.get("builtin", False),
+                    "startup": plugin_info.get("startup", False),
+                }
+            )
+    
+    manager = PluginManager()
+
+    for plugin in plugins:
+        xlogger.info(f"Running startup plugin: {plugin}")
+        manager.load_plugin(plugin["name"], builtin=plugin["builtin"])
+
+    manager.load_startup_config('./example/plugin/startup.yaml')
+    manager.startup()
+
+    xlogger.debug(manager.plugins)       
         
 
 if __name__ == "__main__":
