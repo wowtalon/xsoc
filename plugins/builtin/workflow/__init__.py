@@ -74,6 +74,9 @@ class WorkflowPlugin(Plugin):
             if isinstance(parameters, dict):
                 for key, value in parameters.items():
                     parameters[key] = jinja2.Template(str(value)).render(context)
+            if isinstance(parameters, list):
+                for i in range(len(parameters)):
+                    parameters[i] = jinja2.Template(str(parameters[i])).render(context)
             xlogger.debug(f"Resolved parameters: {parameters}")
             match step.get('action'):
                 case 'tool':
@@ -100,4 +103,4 @@ class WorkflowPlugin(Plugin):
             context['steps'][step['name']] = result
             xlogger.debug(context)
         self.continuous_run = False
-        return f"Workflow {workflow['name']} executed successfully"
+        return result
